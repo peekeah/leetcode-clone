@@ -1,5 +1,6 @@
 const { SUBMISSION } = require('../utils/constant');
 
+
 exports.getSubmissions = async(req, res) => {
     try {
         res.send({ data: SUBMISSION });

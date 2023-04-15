@@ -1,23 +1,22 @@
-// Define a custom error class
 class CustomError extends Error {
     constructor(message, statusCode) {
-        super(message);
-        this.statusCode = statusCode;
-        this.name = this.constructor.name;
-        Error.captureStackTrace(this, this.constructor);
+      super(message);
+      this.name = this.constructor.name;
+      this.statusCode = statusCode || 500;
+      Error.captureStackTrace(this, this.constructor);
     }
-}
-
-// Define a custom error handler function
-const customErrorHandler = (err, req, res, next) => {
-// Handle the custom error
-if (err instanceof CustomError) {
-        const { statusCode, message } = err;
-        res.status(statusCode).json({ error: message });
-    } else {
-        // Pass the error to the default error handler
-        next(err);
+  }
+  
+  function errorHandler(err, req, res, next) {
+    if (err instanceof CustomError) {
+      return res.status(err.statusCode).json({ error: err.message });
     }
-};
-
-module.exports = { CustomError, customErrorHandler };
+  
+    // Handle other types of errors here
+  
+    // If the error is not handled, pass it to the next middleware
+    return next(err);
+  }
+  
+  module.exports = { CustomError, errorHandler };
+  
