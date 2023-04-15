@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { USERS } = require('../utils/constant');
 
 exports.signup = async(req, res) => {
@@ -15,10 +16,13 @@ exports.signup = async(req, res) => {
 
         // password hashing
         const saltRounds = 7; 
-        const password = await bcrypt.hash(req.body.password, saltRounds);
+        req.body.password = await bcrypt.hash(req.body.password, saltRounds);
 
-        USERS.push({ ...req.body, password });
-        res.status(201).send(USERS.find(s => s.email === req.body.email ));
+        USERS.push(req.body);
+
+        const token = await jwt.sign(req.body, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+        res.status(201).send({ token });
     } catch (err) {
         console.log(err);
     }
@@ -39,15 +43,10 @@ exports.login = async(req, res) => {
             return res.status(401).send({ message: "Password doesn't match" });
         } 
 
-        // token generation
-        let token = (Math.random() + 1).toString(36).substring(7);
-
-        // saperate token for admin
-        if(existUser.role === 'admin') {
-            token = 'admin' + token;
-        }       
-
-        res.status(200).send({ data: { token } });
+        // token generation using jwt
+        const token = await jwt.sign(existUser, process.env.JWT_SECRET, { expiresIn: '30d' });
+        
+        res.status(200).send({ token });
     } catch (err) {
         console.log(err);
     }
