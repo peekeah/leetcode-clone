@@ -16,7 +16,6 @@ exports.signup = async(req, res) => {
         // password hashing
         const saltRounds = 7; 
         const password = await bcrypt.hash(req.body.password, saltRounds);
-        console.log(password)
 
         USERS.push({ ...req.body, password });
         res.status(201).send(USERS.find(s => s.email === req.body.email ));
@@ -46,7 +45,7 @@ exports.login = async(req, res) => {
         // saperate token for admin
         if(existUser.role === 'admin') {
             token = 'admin' + token;
-        }
+        }       
 
         res.status(200).send({ data: { token } });
     } catch (err) {
