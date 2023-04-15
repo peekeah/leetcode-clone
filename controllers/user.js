@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { USERS } = require('../utils/constant');
 
 exports.signup = async(req, res) => {
@@ -12,8 +13,13 @@ exports.signup = async(req, res) => {
             req.body.role === 'user';
         }
 
-        USERS.push(req.body);
-        res.status(201).send(req.body);
+        // password hashing
+        const saltRounds = 7; 
+        const password = await bcrypt.hash(req.body.password, saltRounds);
+        console.log(password)
+
+        USERS.push({ ...req.body, password });
+        res.status(201).send(USERS.find(s => s.email === req.body.email ));
     } catch (err) {
         console.log(err);
     }
@@ -27,7 +33,8 @@ exports.login = async(req, res) => {
             return res.status(401).send({ message: "user doesn't exist" })
         };
 
-        const matchesPassword = existUser.password === req.body.password;
+        // password validation using bcrpyt
+        const matchesPassword = await bcrypt.compare(req.body.password, existUser.password);
 
         if(!matchesPassword) {
             return res.status(401).send({ message: "Password doesn't match" });
