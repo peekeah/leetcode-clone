@@ -4,12 +4,14 @@ const dotenv = require('dotenv')
 const usersRouter = require('./routes/users')
 const questionsRouter = require('./routes/questions')
 const submissionsRouter = require('./routes/submissions')
+const { customErrorHandler } = require('./utils/error')
 
 // dotenv configuration
 dotenv.config();
 
 const app = express()
 app.use(express.json());
+app.use(customErrorHandler);
 
 const port = 3001;
 
