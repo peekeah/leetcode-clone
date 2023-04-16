@@ -6,7 +6,8 @@ exports.isAdmin = async(req, res, next) => {
 
     // checking if token exists
     if(!token){
-        return res.status(401).send({ message: "Token not found" })
+        const error = new CustomError('Token not found', 400);
+        return next(error);
     }
     
     // token validation
@@ -15,12 +16,13 @@ exports.isAdmin = async(req, res, next) => {
         tokenData = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
         console.log(err)
-        return res.status(401).send({ message: "Invalid Token" })
+        const error = new CustomError('Invalid Token', 401);
+        return next(error);
     }
     
     // admin role validation
     if(tokenData.role !== 'admin'){
-        const error = new CustomError("You are not authorized", 401);
+        const error = new CustomError('You are not authorized', 401);
         return next(error);
     }
 

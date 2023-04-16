@@ -11,7 +11,8 @@ exports.signup = async(req, res) => {
             return res.status(409).send({ message: 'User alredy exist!' })  ;
         }
 
-        if(req.body.role) {
+        // adding default role as user
+        if(!req.body.role) {
             req.body.role === 'user';
         }
 
@@ -26,6 +27,8 @@ exports.signup = async(req, res) => {
         res.status(201).send({ token });
     } catch (err) {
         console.log(err);
+        const error = new Error();
+        return next(error);
     }
 }
 
@@ -33,9 +36,6 @@ exports.login = async(req, res, next) => {
     try {
         const existUser = USERS.find(s => s.email === req.body.email);
         if(!existUser) {
-            return res.status(403).send({ message: "User not found" });
-
-            // #FIXME: this error is not working with error handler
             const error = new CustomError("User doesn't exist", 409);
             return next(error);
         };
@@ -55,5 +55,7 @@ exports.login = async(req, res, next) => {
         res.status(200).send({ token });
     } catch (err) {
         console.log(err);
+        const error = new Error();
+        return next(error);
     }
 }

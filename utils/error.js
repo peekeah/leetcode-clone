@@ -11,11 +11,9 @@ class CustomError extends Error {
     if (err instanceof CustomError) {
       return res.status(err.statusCode).json({ error: err.message });
     }
-  
+    
     // Handle other types of errors here
-  
-    // If the error is not handled, pass it to the next middleware
-    return next(err);
+    return res.status(500).send({ message: 'Internal server error' });
   }
   
   module.exports = { CustomError, errorHandler };

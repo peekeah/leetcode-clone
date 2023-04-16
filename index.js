@@ -11,15 +11,16 @@ dotenv.config();
 
 const app = express()
 app.use(express.json());
-app.use(errorHandler);
 
 const port = 3001;
 
-//routes
+// routes
 app.use('/user', usersRouter);
 app.use('/questions', questionsRouter);
 app.use('/submissions', submissionsRouter);
 
+// error handler
+app.use(errorHandler);
 
 app.listen(port, function() {
   console.log(`Example app listening on port ${port}`)
