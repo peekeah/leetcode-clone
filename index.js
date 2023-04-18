@@ -5,6 +5,7 @@ const usersRouter = require('./routes/users')
 const questionsRouter = require('./routes/questions')
 const submissionsRouter = require('./routes/submissions')
 const { errorHandler } = require('./utils/error')
+const AppDataSource = require('./utils/data-source')
 
 // dotenv configuration
 dotenv.config();
@@ -13,6 +14,14 @@ const app = express()
 app.use(express.json());
 
 const port = 3001;
+
+// initializing db
+AppDataSource.initialize().then(() => {
+  console.log(`database connected successsfully on port`, process.env.DB_PORT)
+}).catch(err => {
+  console.log(err);
+});
+
 
 // routes
 app.use('/user', usersRouter);

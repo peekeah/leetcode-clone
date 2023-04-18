@@ -2,8 +2,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { USERS } = require('../utils/constant');
 const { CustomError } = require('../utils/error');
+const AppDataSource = require('../utils/data-source');
+const Users = require('../entity/user.entity');
 
-exports.signup = async(req, res) => {
+exports.signup = async(req, res, next) => {
     try {
         const existUser = USERS.find(s => s.email === req.body.email);
 
@@ -20,15 +22,18 @@ exports.signup = async(req, res) => {
         const saltRounds = 7; 
         req.body.password = await bcrypt.hash(req.body.password, saltRounds);
 
-        USERS.push(req.body);
+
+        const repo = await AppDataSource.getRepository(Users)
+        console.log(repo);
+        const res = await repo.save(req.body);
+        console.log(res)
+        // USERS.push(req.body);
 
         const token = await jwt.sign(req.body, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY || '30d' });
 
         res.status(201).send({ token });
     } catch (err) {
-        console.log(err);
-        const error = new Error();
-        return next(error);
+        return next(err);
     }
 }
 
