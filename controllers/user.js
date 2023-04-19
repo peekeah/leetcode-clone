@@ -15,7 +15,8 @@ exports.signup = async(req, res, next) => {
         })
 
         if(existUser) {
-            return res.status(409).send({ message: 'User alredy exist!' })  ;
+            const error = new CustomError("User alredy exist!", 409);
+            return next(error);
         }
 
         // password hashing
@@ -35,9 +36,13 @@ exports.signup = async(req, res, next) => {
 
 exports.login = async(req, res, next) => {
     try {
-        const existUser = USERS.find(s => s.email === req.body.email);
+        // validate user in db
+        const repo = AppDataSource.getRepository("users");
+        const existUser = await repo.findOne({
+            where: { email: req.body.email }
+        })
         if(!existUser) {
-            const error = new CustomError("User doesn't exist", 409);
+            const error = new CustomError("User doesn't exist", 400);
             return next(error);
         };
 
