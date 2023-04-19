@@ -7,29 +7,25 @@ const Users = require('../entity/user.entity');
 
 exports.signup = async(req, res, next) => {
     try {
-        const existUser = USERS.find(s => s.email === req.body.email);
+        // existing user validation
+        const repo = AppDataSource.getRepository(Users);
+
+        const existUser = await repo.findOne({
+            where: { email: req.body.email }
+        })
 
         if(existUser) {
             return res.status(409).send({ message: 'User alredy exist!' })  ;
-        }
-
-        // adding default role as user
-        if(!req.body.role) {
-            req.body.role === 'user';
         }
 
         // password hashing
         const saltRounds = 7; 
         req.body.password = await bcrypt.hash(req.body.password, saltRounds);
 
+        // saving data in db
+        await repo.save({ ...req.body });
 
-        const repo = await AppDataSource.getRepository(Users)
-        console.log(repo);
-        const res = await repo.save(req.body);
-        console.log(res)
-        // USERS.push(req.body);
-
-        const token = await jwt.sign(req.body, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY || '30d' });
+        const token = jwt.sign(req.body, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY || '30d' });
 
         res.status(201).send({ token });
     } catch (err) {

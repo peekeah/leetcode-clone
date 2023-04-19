@@ -17,6 +17,10 @@ module.exports = new EntitySchema({
         }, 
         password: {
             type: "varchar"
+        },
+        role: {
+            type: "varchar",
+            default: "user"
         }
     },
 })
