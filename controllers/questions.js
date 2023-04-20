@@ -1,4 +1,3 @@
-const { QUESTIONS } = require('../utils/constant');
 
 exports.addQuestions = async(req, res) => {
     

@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { USERS } = require('../utils/constant');
 const { CustomError } = require('../utils/error');
 const AppDataSource = require('../utils/data-source');
 const Users = require('../entity/user.entity');
