@@ -11,5 +11,10 @@ exports.addQuestions = async(req, res) => {
 }
 
 exports.getQuestions = async(req, res) => {
-    res.send("QUESTIONS");
+    // getting questions from db
+
+    const repo = AppDataSource.getRepository(Questions)
+    const questions = await repo.find()
+    res.send(questions)
+
 }
