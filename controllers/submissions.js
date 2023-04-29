@@ -28,14 +28,16 @@ exports.getSubmission  = async(req, res, next) => {
 
 exports.createSubmission = async(req, res) => {
     
+    // generating accept value randomly
     const randomId = Math.floor(Math.random() * 2);
-
     if(randomId){
         req.body.accepted = true;
     } else {
         req.body.accepted = false;
     }
 
+    // passing userid from converted token data
+    req.body.user = req.body.tokenData.id
     // saving into db
     const repo = AppDataSource.getRepository(Submissions)
     await repo.save(req.body)
