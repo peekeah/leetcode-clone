@@ -6,7 +6,8 @@ const auth = require('../middlewares/auth');
 const router = express.Router();
 
 router.get('/', questions.getQuestions);
-router.post('/add', [auth.isAuthenciated, auth.isAdmin], questions.addQuestions);
+router.get('/:id', questions.getQuestion);
+router.post('/', [auth.isAuthenciated, auth.isAdmin], questions.addQuestions);
 
 
 module.exports = router;

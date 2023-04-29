@@ -12,6 +12,20 @@ exports.getSubmissions = async(req, res) => {
     }
 }
 
+
+// add controller to get question by id
+exports.getSubmission  = async(req, res, next) => {
+    try {
+        // get submission
+        const repo = AppDataSource.getRepository(Submissions);
+        const submission = await repo.find({ where: { id: req.params.id } });
+        res.send({ data: submission });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+}
+
 exports.createSubmission = async(req, res) => {
     
     const randomId = Math.floor(Math.random() * 2);
@@ -29,3 +43,4 @@ exports.createSubmission = async(req, res) => {
     // SUBMISSION.push(obj);
     res.send({ data: 'Successfully submitted!' });
 }
+
