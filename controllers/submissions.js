@@ -1,11 +1,22 @@
 const AppDataSource = require("../utils/data-source");
 const Submissions = require("../entity/submission.entity");
 
+
 exports.getSubmissions = async(req, res) => {
     try {
-        // get all submissions
+        const userData = req.body.tokenData;
+        role = userData.role
+
+        // getting all submission for admin & all submissions by user
+        let query;
+        if(role == "admin"){
+            query={}
+        } else {
+            query = { where: { "user.id": userData.id } }
+        }
+
         const repo = AppDataSource.getRepository(Submissions);
-        const submissions = await repo.find();
+        const submissions = await repo.find(query);
         res.send({ data: submissions });
     } catch (err) {
         console.log(err);

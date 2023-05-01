@@ -5,7 +5,7 @@ const auth = require('../middlewares/auth')
 const router = express.Router();
 
 
-router.get('/', submissions.getSubmissions);
+router.get('/', auth.isAuthenciated, submissions.getSubmissions);
 router.get('/:id', submissions.getSubmission);
 router.post('/', auth.isAuthenciated, submissions.createSubmission);
 
