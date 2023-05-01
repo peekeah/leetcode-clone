@@ -1,5 +1,6 @@
 const AppDataSource = require("../utils/data-source");
 const Submissions = require("../entity/submission.entity");
+const { CustomError } = require("../utils/error");
 
 
 exports.getSubmissions = async(req, res) => {
@@ -10,7 +11,7 @@ exports.getSubmissions = async(req, res) => {
         // getting all submission for admin & all submissions by user
         let query;
         if(role == "admin"){
-            query={}
+            query = {};
         } else {
             query = { where: { "user.id": userData.id } }
         }
@@ -25,12 +26,25 @@ exports.getSubmissions = async(req, res) => {
 
 
 // add controller to get question by id
-exports.getSubmission  = async(req, res, next) => {
+exports.getSubmission = async(req, res, next) => {
     try {
+        const userData = req.body.tokenData;
+
+        let query;
+        if(userData.role == "admin"){
+            query = { where: { id: req.params.id }};
+        } else {
+            query = { where: { "user.id": userData.id, id: req.params.id } };
+        }
+
         // get submission
         const repo = AppDataSource.getRepository(Submissions);
-        const submission = await repo.find({ where: { id: req.params.id } });
-        res.send({ data: submission });
+        const submission = await repo.find(query);
+        if(submission.length === 0){
+            const error = new CustomError("Not found", 404);
+            return next(error);
+        }
+        res.send({ data: submission })
     } catch (err) {
         console.log(err);
         next(err);

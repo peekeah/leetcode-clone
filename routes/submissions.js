@@ -6,7 +6,7 @@ const router = express.Router();
 
 
 router.get('/', auth.isAuthenciated, submissions.getSubmissions);
-router.get('/:id', submissions.getSubmission);
+router.get('/:id', auth.isAuthenciated, submissions.getSubmission);
 router.post('/', auth.isAuthenciated, submissions.createSubmission);
 
 
