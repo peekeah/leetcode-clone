@@ -1,50 +1,34 @@
-const AppDataSource = require("../utils/data-source");
-const Questions = require("../entity/questions.entity");
+const { save, findOne, findMany } = require("../services/typeorm");
 
-// modify for bulk upload
-exports.addQuestions = async(req, res) => {
+exports.addQuestions = async (req, res) => {
     try {
-        let questions;
-        if(!req.body[0]) {
-            questions = [req.body]
-        } else {
-            questions = [...req.body]
-        }
-
-        // adding questions in db
-        const repo = AppDataSource.getRepository(Questions)
-        questions.forEach(question => {
-            repo.save(question)
-        })
-        res.status(201).send({ message: 'Successfully added!' });
-        
+        // saving questoins in db
+        await save("questions", req.body);
+        res.status(201).send({ message: "Successfully added!" });
     } catch (err) {
-        console.log(err)
-        next(err)
+        console.log(err);
+        next(err);
     }
-}
+};
 
-exports.getQuestions = async(req, res) => {
+exports.getQuestions = async (req, res, next) => {
     try {
-         // getting questions from db
-        const repo = AppDataSource.getRepository(Questions)
-        const questions = await repo.find()
-    res.send(questions)
+        // getting questions from db
+        const questions = await findMany("questions");
+        res.send(questions);
     } catch (err) {
-        console.log(err)
-        next(err)
+        console.log(err);
+        next(err);
     }
-}
+};
 
-
-exports.getQuestion = async(req, res) => {
+exports.getQuestion = async (req, res) => {
     try {
         // getting question from db
-        const repo = AppDataSource.getRepository(Questions)
-        const question = await repo.find({ where: { id: req.params.id } })
-        res.send(question)
+        const question = await findOne("questions", ["id"], [req.params.id]);
+        res.send(question);
     } catch (err) {
-        console.log(err)
-        next(err)
+        console.log(err);
+        next(err);
     }
-}
+};

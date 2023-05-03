@@ -1,5 +1,5 @@
 const { CustomError } = require('../utils/error');
-const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../services/jwt');
 
 exports.isAdmin = async(req, res, next) => {
     
@@ -15,6 +15,7 @@ exports.isAdmin = async(req, res, next) => {
 }
 
 exports.isAuthenciated = async(req, res, next) => {
+
     // token validation
     const token = req.headers['access-token'];
     
@@ -24,10 +25,9 @@ exports.isAuthenciated = async(req, res, next) => {
     }
     
     try {
-        // token verification
-        const tokenData = jwt.verify(token, process.env.JWT_SECRET)
+        const tokenData = verifyToken(token); // token verification
 
-        req.body.tokenData = tokenData;
+        req.body.tokenData = tokenData; // sending docoded data to controllers
         next();
     } catch (err) {
         console.log(err)
