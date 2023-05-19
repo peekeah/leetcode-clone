@@ -5,7 +5,7 @@ exports.returnScript = (language, filePath) => {
             prefix = 'gcc'
             break;
         case 'c++':
-            prefix = 'gcc'
+            prefix = 'g++'
             break;
         case 'js':
             prefix = 'node'

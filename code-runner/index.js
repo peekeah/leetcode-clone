@@ -3,7 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const { returnScript, returnFileName } = require('./utils/constant');
 const { Buffer } = require('node:buffer');
-const { spawn } = require('node:child_process');
+const { exec, spawn } = require('node:child_process');
 
 const app = express();
 app.use(express.json());
@@ -28,43 +28,61 @@ app.post('/', async (req, res, next) => {
 
         const script = returnScript(req.body.language, filePath);
 
-        const processScript = `${script[0]} ${script[1]} >> ${filePath}.txt`;
+        console.log(script);
+
+        // saving output to file
+        let  processScript;
+
+        if(['c', 'c++'].includes(req.body.language)){
+            processScript = `${script[0]} ${script[1]} -o ${filePath}.output`;
+        } else {
+            processScript = `${script[0]} ${script[1]} >> ${filePath}.output`;
+        }
+
         const process = spawn(processScript, { shell: '/bin/bash' });
 
-        process.on('error', (data) => {
-            res.send(data)
+        process.on('error', (err) => {
+            res.send(err)
         });
 
         process.stdout.on('close', async() => {
-            
-            const data = await fs.promises.readFile(`${filePath}.txt`);
-            
-            [`${filePath}.txt`, filePath].forEach(path => {
-                fs.unlink(path, (err) => {
-                    if(err){
-                        console.log(path, ": ", err.message);
-                    } else {
-                        console.log(path, 'deleted successfully');
-                    }
+            if(!['c', 'c++'].includes(req.body.language)){
+                const data = await fs.promises.readFile(`${filePath}.output`);
+                res.send(data);
+
+                 // deleting auto generated files
+                [`${filePath}.output`, filePath].forEach(path => {
+                    fs.unlink(path, (err) => {
+                        if(err){
+                            console.log(path, ": ", err.message);
+                        } else {
+                            console.log(path, 'deleted successfully');
+                        }
+                    })
                 })
-            })
+                
+            } else {
+                const readOutput = exec(`${filePath}.output`);
 
-            res.send(data);
+                readOutput.stdout.on('data', (data) => {
+                    res.send(data);
+                    
+                    // deleting auto generated files
+                    [`${filePath}.output`, filePath].forEach(path => {
+                        fs.unlink(path, (err) => {
+                            if(err){
+                                console.log(path, ": ", err.message);
+                            } else {
+                                console.log(path, 'deleted successfully');
+                            }
+                        })
+                    })
+                })
+            }    
         });
-
-
     } catch (err) {
         res.status(500).send(err)
     }
-})
-
-
-app.get('/', async (req, res) => {
-    const process = spawn('node', ['uploads/file.js']);
-
-    process.stdout.on('data', (data) => {
-        res.send(data)
-    });
 })
 
 
