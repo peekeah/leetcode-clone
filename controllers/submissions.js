@@ -1,5 +1,3 @@
-const AppDataSource = require("../utils/data-source");
-const Submissions = require("../schemas/submission.entity");
 const { CustomError } = require("../utils/error");
 const { findMany, save } = require("../services/typeorm");
 
@@ -50,8 +48,13 @@ exports.getSubmission = async(req, res, next) => {
     }
 }
 
-exports.createSubmission = async(req, res) => {
+exports.createSubmission = async(req, res, next) => {
     try {
+        // bulk submit restrict
+        if(Array.isArray(req.body)){
+            throw new CustomError('Invalid input', 403);
+        }
+
         // generating accept value randomly
         const randomId = Math.floor(Math.random() * 2);
         if(randomId){
@@ -71,7 +74,5 @@ exports.createSubmission = async(req, res) => {
         console.log(err);
         next(err);
     }
-    
-    
 }
 
