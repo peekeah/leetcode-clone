@@ -1,0 +1,46 @@
+services:
+    server:
+        build: server
+        restart: always
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+        environment:
+            PORT: 8000
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+            DB_NAME: leetcodeclonedb
+            JWT_SECRET: fsd-jwt-secret
+            JWT_EXPIRY: 30d
+        networks:
+            - mynetwork
+    code-runner:
+        build: code-runner
+        ports:
+            - "9000:9000"
+        environment:
+            PORT: 9000
+        networks:
+            - mynetwork
+    db:
+        image: postgres:latest
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: leetcodeclonedb
+        volumes:
+            - dbdata:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        networks:
+            - mynetwork
+volumes:
+    dbdata:
+        driver: local
+networks:
+    mynetwork:
+        driver: bridge
